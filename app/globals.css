@@ -1,47 +1,99 @@
 @import "tailwindcss";
 
+@theme {
+  /* Prevent automatic dark mode flipping of default variables by defining our own base theme */
+  --color-background: #f3faff;
+  --color-foreground: #071e27;
+
+  /* Surfaces */
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #e6f6ff;
+  --surface-container: #dbf1fe;
+  --surface-container-high: #d5ecf8;
+  --surface-container-highest: #cfe6f2;
+  --surface: #f3faff;
+
+  /* Color Mappings so Tailwind generates .bg-surface etc */
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-surface: var(--surface);
+
+  /* Primary */
+  --primary: #00478d;
+  --primary-container: #005eb8;
+  --color-on-primary: #ffffff;
+  --color-primary: var(--primary);
+  --color-primary-container: var(--primary-container);
+
+  /* Secondary */
+  --secondary: #1b6d24;
+  --secondary-container: #a0f399;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #217128;
+  --color-secondary: var(--secondary);
+  --color-secondary-container: var(--secondary-container);
+
+  /* Error */
+  --error: #ba1a1a;
+  --error-container: #ffdad6;
+  --color-on-error: #ffffff;
+  --color-on-error-container: #93000a;
+  --color-error: var(--error);
+  --color-error-container: var(--error-container);
+
+  /* Text & Outlines */
+  --on-surface: #071e27;
+  --on-surface-variant: #424752;
+  --outline: #727783;
+  --outline-variant: #c2c6d4;
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+
+  /* Typography */
+  --font-sans: var(--font-inter), sans-serif;
+  --font-display: var(--font-manrope), sans-serif;
+}
+
 :root {
-  --background: #f8fafc; /* slate-50 */
-  --foreground: #0f172a; /* slate-900 */
+  /* Force root level variables to be available if arbitrary Tailwind brackets bg-[var(--surface)] are used */
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #e6f6ff;
+  --surface-container: #dbf1fe;
+  --surface-container-high: #d5ecf8;
+  --surface-container-highest: #cfe6f2;
+  --surface: #f3faff;
+  --background: #f3faff;
   
-  --brand: #10b981; /* emerald-500 */
-  --brand-hover: #059669; /* emerald-600 */
-
-  --bg-card: #ffffff;
-  --border: #e2e8f0; /* slate-200 */
-  --text-muted: #64748b; /* slate-500 */
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans), Inter, sans-serif;
-  --font-mono: var(--font-geist-mono);
+  --primary: #00478d;
+  --primary-container: #005eb8;
+  --on-primary: #ffffff;
   
-  --color-brand: var(--brand);
-  --color-brand-hover: var(--brand-hover);
-  --color-card: var(--bg-card);
-  --color-border: var(--border);
-  --color-muted: var(--text-muted);
-}
+  --secondary: #1b6d24;
+  --secondary-container: #a0f399;
+  --on-secondary-container: #217128;
+  --on-secondary: #ffffff;
+  
+  --error: #ba1a1a;
+  --error-container: #ffdad6;
+  --on-error: #ffffff;
+  --on-error-container: #93000a;
+  
+  --on-surface: #071e27;
+  --on-surface-variant: #424752;
+  --outline: #727783;
+  --outline-variant: #c2c6d4;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #020617; /* slate-950 */
-    --foreground: #f8fafc; /* slate-50 */
-    
-    --brand: #10b981; /* emerald-500 */
-    --brand-hover: #34d399; /* emerald-400 */
-    
-    --bg-card: #0f172a; /* slate-900 */
-    --border: #1e293b; /* slate-800 */
-    --text-muted: #94a3b8; /* slate-400 */
-  }
+  color-scheme: light; /* Force light mode */
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--background) !important;
+  color: var(--on-surface) !important;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
