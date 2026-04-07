@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Vault - Subscription Management</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@400;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-error-container": "#93000a",
+                    "surface-container": "#dbf1fe",
+                    "surface-container-low": "#e6f6ff",
+                    "inverse-on-surface": "#dff4ff",
+                    "on-primary": "#ffffff",
+                    "surface": "#f3faff",
+                    "secondary-container": "#a0f399",
+                    "tertiary-container": "#006976",
+                    "on-error": "#ffffff",
+                    "on-tertiary-container": "#74eaff",
+                    "tertiary-fixed": "#9eefff",
+                    "outline-variant": "#c2c6d4",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-highest": "#cfe6f2",
+                    "primary-fixed": "#d6e3ff",
+                    "surface-variant": "#cfe6f2",
+                    "on-surface": "#071e27",
+                    "secondary": "#1b6d24",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-fixed": "#002204",
+                    "on-surface-variant": "#424752",
+                    "secondary-fixed": "#a3f69c",
+                    "surface-tint": "#005db6",
+                    "on-primary-fixed": "#001b3d",
+                    "inverse-surface": "#1e333c",
+                    "on-primary-fixed-variant": "#00468c",
+                    "primary-container": "#005eb8",
+                    "tertiary-fixed-dim": "#55d7ed",
+                    "on-tertiary-fixed": "#001f24",
+                    "background": "#f3faff",
+                    "on-secondary-container": "#217128",
+                    "primary": "#00478d",
+                    "on-secondary-fixed-variant": "#005312",
+                    "error-container": "#ffdad6",
+                    "tertiary": "#004f5a",
+                    "on-secondary": "#ffffff",
+                    "on-background": "#071e27",
+                    "surface-container-high": "#d5ecf8",
+                    "surface-dim": "#c7dde9",
+                    "surface-bright": "#f3faff",
+                    "error": "#ba1a1a",
+                    "on-primary-container": "#c8daff",
+                    "on-tertiary-fixed-variant": "#004e59",
+                    "outline": "#727783",
+                    "secondary-fixed-dim": "#88d982",
+                    "inverse-primary": "#a9c7ff",
+                    "primary-fixed-dim": "#a9c7ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-nav {
+            backdrop-filter: blur(20px);
+            background-color: rgba(243, 250, 255, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface">
+<!-- TopNavBar -->
+<header class="w-full sticky top-0 bg-[#f3faff] dark:bg-slate-950 z-50">
+<div class="flex justify-between items-center w-full px-6 py-4 max-w-full">
+<div class="flex items-center gap-8">
+<span class="text-xl font-black tracking-wider text-[#071e27] dark:text-white font-headline">The Vault</span>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-[#00478d] dark:text-blue-300 font-bold border-b-2 border-primary py-1 font-headline text-lg" href="#">Dashboard</a>
+<a class="text-[#424752] dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors px-3 py-1 rounded-full font-headline text-lg" href="#">Subscriptions</a>
+<a class="text-[#424752] dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors px-3 py-1 rounded-full font-headline text-lg" href="#">Insights</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full focus:ring-2 focus:ring-primary text-sm w-64" placeholder="Search vault..." type="text"/>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-[#00478d] dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-[#00478d] dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="h-10 w-10 rounded-full overflow-hidden ml-2 ring-2 ring-primary-container">
+<img alt="User profile" data-alt="Close-up portrait of a professional man in soft studio lighting with a clean background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9Ots64MFilgHH_zmdfbAeXmtX3pMOsuTONpY0he8IejHZQpdtETAkiVs4s9L3YDyQ60PLALZWNgL4OxtLbatpbq02PF8lDenu5VXgQijAOv2K6OxqrxeOY23p8emTr2HgCo6It3jCepvzEJay93ovjplW6l3JzZK6GIxsVp76LdHo0eMEHq84Sd8AtMtIkN2MMSaUmZEKwvW4hbJD8qXcYPII7ri6Hc-451DUTGdyVl4k7Lcm_jRarIrQgq4J4L3oTmmDz6K1hca5"/>
+</div>
+</div>
+</div>
+</div>
+</header>
+<div class="flex min-h-[calc(100vh-76px)]">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col h-full w-64 p-4 gap-2 bg-[#f3faff] dark:bg-slate-950 shadow-xl dark:shadow-none shadow-[#071e27]/5">
+<div class="mb-8 px-2">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+</div>
+<div>
+<p class="font-manrope font-extrabold text-[#00478d] dark:text-blue-400 leading-none">The Vault</p>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mt-1">Financial Concierge</p>
+</div>
+</div>
+</div>
+<a class="flex items-center gap-3 px-4 py-3 text-[#424752] dark:text-slate-400 font-inter text-sm font-medium hover:bg-[#dbf1fe]/50 dark:hover:bg-slate-800 transition-all rounded-full group" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-[#dbf1fe] dark:bg-blue-900/30 text-[#00478d] dark:text-blue-200 rounded-full font-semibold font-inter text-sm group" href="#">
+<span class="material-symbols-outlined translate-x-1 duration-200" data-icon="subscriptions">subscriptions</span>
+<span>Subscriptions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#424752] dark:text-slate-400 font-inter text-sm font-medium hover:bg-[#dbf1fe]/50 dark:hover:bg-slate-800 transition-all rounded-full group" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200" data-icon="analytics">analytics</span>
+<span>Insights</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#424752] dark:text-slate-400 font-inter text-sm font-medium hover:bg-[#dbf1fe]/50 dark:hover:bg-slate-800 transition-all rounded-full group" href="#">
+<span class="material-symbols-outlined group-hover:translate-x-1 duration-200" data-icon="assessment">assessment</span>
+<span>Reports</span>
+</a>
+<div class="mt-auto p-4 bg-primary-container rounded-3xl text-on-primary-container">
+<p class="text-xs font-bold opacity-80 mb-2">PRO PLAN</p>
+<p class="font-headline font-bold text-lg leading-tight mb-4">Unlock advanced spending insights</p>
+<button class="w-full bg-white text-primary py-2 rounded-full font-bold text-sm shadow-sm">Upgrade Now</button>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 p-6 md:p-10 overflow-hidden">
+<div class="max-w-6xl mx-auto">
+<!-- Header & Stats Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+<div>
+<h1 class="text-5xl font-headline font-extrabold text-on-surface tracking-tight mb-2">Subscriptions</h1>
+<p class="text-on-surface-variant max-w-md">Manage your digital footprint and optimize your monthly recurring expenses.</p>
+</div>
+<!-- Asymmetrical Bento Stat Card -->
+<div class="bg-surface-container-lowest p-6 rounded-[2rem] shadow-sm flex items-center gap-8 pr-12 relative overflow-hidden">
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl"></div>
+<div class="relative">
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Total Monthly</p>
+<p class="text-4xl font-headline font-extrabold text-primary">$482.50</p>
+</div>
+<div class="h-12 w-px bg-outline-variant/30"></div>
+<div class="relative">
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Active Now</p>
+<p class="text-4xl font-headline font-extrabold text-secondary">14</p>
+</div>
+</div>
+</div>
+<!-- Filters & Controls Bar -->
+<div class="flex flex-col sm:flex-row gap-4 mb-8 items-center justify-between">
+<div class="flex items-center gap-3 w-full sm:w-auto">
+<div class="relative w-full sm:w-80">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
+<input class="w-full pl-12 pr-4 py-3 bg-surface-container-low border-none rounded-full focus:ring-2 focus:ring-primary text-sm font-medium" placeholder="Filter by name or service..." type="text"/>
+</div>
+<button class="p-3 bg-surface-container-low rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined" data-icon="filter_list">filter_list</span>
+</button>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-low p-1.5 rounded-full">
+<button class="px-5 py-2 bg-white shadow-sm rounded-full text-sm font-bold text-primary">All</button>
+<button class="px-5 py-2 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors">Active</button>
+<button class="px-5 py-2 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors">Paused</button>
+</div>
+<button class="flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-primary to-primary-container text-white rounded-full font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+<span>Add New</span>
+</button>
+</div>
+<!-- Subscription List Content (No Dividers, Vertical Gaps) -->
+<div class="space-y-3">
+<!-- Header Row (Labels) -->
+<div class="grid grid-cols-12 gap-4 px-8 py-2 hidden md:grid">
+<div class="col-span-4"><span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Subscription Service</span></div>
+<div class="col-span-2"><span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest text-center">Billing Cycle</span></div>
+<div class="col-span-2"><span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Next Bill</span></div>
+<div class="col-span-2 text-right"><span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Monthly Cost</span></div>
+<div class="col-span-2 text-right"><span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Status</span></div>
+</div>
+<!-- List Items -->
+<!-- Netflix -->
+<div class="grid grid-cols-12 gap-4 items-center px-8 py-5 bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+<div class="col-span-12 md:col-span-4 flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl bg-error/10 flex items-center justify-center">
+<img alt="Netflix logo" class="w-8 h-8 object-contain" data-alt="Clean and minimal red Netflix letter N logo on a white square background with rounded corners" src="https://lh3.googleusercontent.com/aida-public/AB6AXuComJI1kDcd930VXvzAenDfpxOCAAJFJ7XAOmqKzvpzL9RK7kt2nWDwWyXXoJ56PIA283veE5durrmSWgwT7VhFoDZ4ydVU3QU-yV5bH_WehW6dogTUv6xI_EIHfkwla-LE0OohtGhkTwW_H3g2yiz2t9MyQAjYAvBe9_P6v1iL55ApjR4xJzzes2ZB3JOG5bursf-pFGkkzn9wO7_dumFe9HfpLNXe9BgTo9sAzzUHWvQ4scC8Qkjv1XbbEtGQG1NDfzBz29lLIRQf"/>
+</div>
+<div>
+<h3 class="text-lg font-headline font-bold text-on-surface group-hover:text-primary transition-colors">Netflix Premium</h3>
+<p class="text-xs text-on-surface-variant">Entertainment • 4K UHD</p>
+</div>
+</div>
+<div class="col-span-4 md:col-span-2 flex justify-center">
+<span class="text-xs font-bold text-on-surface-variant bg-surface-container px-3 py-1 rounded-full uppercase tracking-tighter">Monthly</span>
+</div>
+<div class="col-span-4 md:col-span-2">
+<p class="text-sm font-medium text-on-surface">Oct 24, 2023</p>
+</div>
+<div class="col-span-4 md:col-span-2 text-right">
+<p class="text-xl font-headline font-bold text-on-surface">$19.99</p>
+</div>
+<div class="col-span-12 md:col-span-2 flex justify-end">
+<span class="flex items-center gap-1.5 px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 bg-secondary rounded-full animate-pulse"></span> Active
+                            </span>
+</div>
+</div>
+<!-- Adobe Creative Cloud -->
+<div class="grid grid-cols-12 gap-4 items-center px-8 py-5 bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+<div class="col-span-12 md:col-span-4 flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl bg-[#ff0000]/10 flex items-center justify-center">
+<img alt="Adobe logo" class="w-8 h-8 object-contain" data-alt="Minimalist red Adobe Creative Cloud swirl logo on a white square background with soft rounded edges" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtuDA6OXldJVJ80Jl29zpsvpvOMxgV_I6jFZ-KIGL9AGFk7Lu30VDB1oMdG93N0FesXTNrlEWpbMbG424cdRPZEnuXYj3wk5jtNKS-sXW3cyIhWeVKVMzBQgswmhF9nMTTjgw2WGysRRDAhWwYlF27Qgxmh0VJmrhiXHl_vjqFKbfUzu9wKPXwlDd67nWvUK2jwgFUkFCz-nuctxJWsqgnQYzOphz4Hqqr_ZA-V0ft3c-W9JRIuNkGATv-nxzaYcH6USV8brQKAiov"/>
+</div>
+<div>
+<h3 class="text-lg font-headline font-bold text-on-surface group-hover:text-primary transition-colors">Creative Cloud</h3>
+<p class="text-xs text-on-surface-variant">Design &amp; Creative • Full Suite</p>
+</div>
+</div>
+<div class="col-span-4 md:col-span-2 flex justify-center">
+<span class="text-xs font-bold text-on-surface-variant bg-surface-container px-3 py-1 rounded-full uppercase tracking-tighter">Annual</span>
+</div>
+<div class="col-span-4 md:col-span-2">
+<p class="text-sm font-medium text-on-surface">Jan 12, 2024</p>
+</div>
+<div class="col-span-4 md:col-span-2 text-right">
+<p class="text-xl font-headline font-bold text-on-surface">$54.99</p>
+</div>
+<div class="col-span-12 md:col-span-2 flex justify-end">
+<span class="flex items-center gap-1.5 px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 bg-secondary rounded-full animate-pulse"></span> Active
+                            </span>
+</div>
+</div>
+<!-- Spotify -->
+<div class="grid grid-cols-12 gap-4 items-center px-8 py-5 bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+<div class="col-span-12 md:col-span-4 flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center">
+<img alt="Spotify logo" class="w-8 h-8 object-contain" data-alt="Iconic green Spotify three-line soundwave logo on a crisp white square background with soft rounded corners" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTuaNmv2M4BnhVZkyCTPa_agcjcfDt5xyvZByZnR5KbPqxUq4iWGvB0RY8kg75MX1GNPempyHKQt9gb86WCmobdqoVc4ijV6iSyIs7BcdB-PBQxhFB85-JIZhT3Cg2IzesMxst06jDAsghTu6F4VSyYc94CSHYLK47Ftsjd_SMgtG_18UGcQsrgZA97FztZKsS5b0Hi8MU2m7h3fnis4PRjuea1azdgd-VXSlysEgN5MDeibJR5zGQOibIiUeP3TqhOu_SZ-ZJnmiC"/>
+</div>
+<div>
+<h3 class="text-lg font-headline font-bold text-on-surface group-hover:text-primary transition-colors">Spotify Family</h3>
+<p class="text-xs text-on-surface-variant">Music • 6 Accounts</p>
+</div>
+</div>
+<div class="col-span-4 md:col-span-2 flex justify-center">
+<span class="text-xs font-bold text-on-surface-variant bg-surface-container px-3 py-1 rounded-full uppercase tracking-tighter">Monthly</span>
+</div>
+<div class="col-span-4 md:col-span-2">
+<p class="text-sm font-medium text-on-surface">Nov 02, 2023</p>
+</div>
+<div class="col-span-4 md:col-span-2 text-right">
+<p class="text-xl font-headline font-bold text-on-surface">$16.99</p>
+</div>
+<div class="col-span-12 md:col-span-2 flex justify-end">
+<span class="flex items-center gap-1.5 px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 bg-secondary rounded-full animate-pulse"></span> Active
+                            </span>
+</div>
+</div>
+<!-- Masterclass (Paused) -->
+<div class="grid grid-cols-12 gap-4 items-center px-8 py-5 bg-surface-container-low/50 rounded-xl shadow-sm opacity-80 group grayscale hover:grayscale-0 transition-all">
+<div class="col-span-12 md:col-span-4 flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl bg-on-surface/10 flex items-center justify-center">
+<img alt="Masterclass logo" class="w-8 h-8 object-contain" data-alt="Elegant Masterclass logo with uppercase 'M' inside a circle, professional black and white design" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrPj3Uw0Yi0nhy3BLzQ_Z0Y24Y6FMnoP2AywR41yl_odXJWKYhd1bdH9OdirE6brvzO2kvIibS-SXXXzCfwQ6u5j3tOVJegX0_GPlQYYACNNNE2zWxjI9EO_zu76AE-PMzGLXTpyXnMuWpt4j7sFreI-wkyQ21JyJLGO9o3n3zGY2WG_DYCVkAPptfFi_Y2tmTSRe9WbL1J4uuRXZbEANu6N3k8zESOqfAs48pWIhJ7ijEHfuQhz9JlXsPU3rnDjdTqkCKUXVOk_46"/>
+</div>
+<div>
+<h3 class="text-lg font-headline font-bold text-on-surface">Masterclass</h3>
+<p class="text-xs text-on-surface-variant">Education • Annual Plan</p>
+</div>
+</div>
+<div class="col-span-4 md:col-span-2 flex justify-center">
+<span class="text-xs font-bold text-on-surface-variant bg-surface-container px-3 py-1 rounded-full uppercase tracking-tighter">Annual</span>
+</div>
+<div class="col-span-4 md:col-span-2">
+<p class="text-sm font-medium text-on-surface-variant italic">Next bill hidden</p>
+</div>
+<div class="col-span-4 md:col-span-2 text-right">
+<p class="text-xl font-headline font-bold text-on-surface-variant">$15.00</p>
+</div>
+<div class="col-span-12 md:col-span-2 flex justify-end">
+<span class="flex items-center gap-1.5 px-3 py-1 bg-surface-container-highest text-on-surface-variant rounded-full text-[10px] font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 bg-on-surface-variant rounded-full"></span> Paused
+                            </span>
+</div>
+</div>
+<!-- WSJ Subscription -->
+<div class="grid grid-cols-12 gap-4 items-center px-8 py-5 bg-surface-container-lowest rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+<div class="col-span-12 md:col-span-4 flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+<img alt="WSJ logo" class="w-8 h-8 object-contain" data-alt="Classic serif typography WSJ logo in black on a white square background with rounded corners" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpcGbmDMNJtpdq6sntGB5B4IUbc8QpKmWZ4IsTyFHGFuRXRTwSmyxKn4krrOABe3isX374q07waU4csPQuM2Bch3wbl9gDwI2kqL_IA-dMGc12jEPBnQrXvhkhgqpX1I3itHOjTBHvLzfeEbp15ym-CbmN6vCMGWKNdvJgeB6dTc6cIr19NJkuWFbbAoldrj6lz8TN1LXOLoBS-TBnxdEmGBYTrJBkJPq4Nn5jMySMR04cpIgsMSn0qUzbUzALqz7JMpYYAMj_fVqu"/>
+</div>
+<div>
+<h3 class="text-lg font-headline font-bold text-on-surface group-hover:text-primary transition-colors">WSJ Digital</h3>
+<p class="text-xs text-on-surface-variant">News &amp; Business • Global Access</p>
+</div>
+</div>
+<div class="col-span-4 md:col-span-2 flex justify-center">
+<span class="text-xs font-bold text-on-surface-variant bg-surface-container px-3 py-1 rounded-full uppercase tracking-tighter">Monthly</span>
+</div>
+<div class="col-span-4 md:col-span-2">
+<p class="text-sm font-medium text-on-surface">Oct 30, 2023</p>
+</div>
+<div class="col-span-4 md:col-span-2 text-right">
+<p class="text-xl font-headline font-bold text-on-surface">$38.99</p>
+</div>
+<div class="col-span-12 md:col-span-2 flex justify-end">
+<span class="flex items-center gap-1.5 px-3 py-1 bg-error-container text-on-error-container rounded-full text-[10px] font-bold uppercase tracking-wider">
+<span class="w-1.5 h-1.5 bg-error rounded-full"></span> Action Required
+                            </span>
+</div>
+</div>
+</div>
+<!-- Footer Summary (Glassmorphism) -->
+<div class="mt-12 p-8 bg-surface-container-low/40 backdrop-blur-xl rounded-[2.5rem] border border-white/40 flex flex-col md:flex-row items-center justify-between gap-6">
+<div class="flex items-center gap-6">
+<div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg shadow-primary/5">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">savings</span>
+</div>
+<div>
+<h4 class="font-headline font-bold text-xl text-on-surface">Vault Insight</h4>
+<p class="text-on-surface-variant text-sm">You could save <span class="font-bold text-secondary">$145.00/year</span> by switching Adobe to an annual plan.</p>
+</div>
+</div>
+<button class="px-8 py-3 bg-on-surface text-white rounded-full font-bold text-sm hover:bg-primary transition-colors">View All Insights</button>
+</div>
+</div>
+</main>
+</div>
+<!-- Mobile Navigation (Floating Bottom Bar) -->
+<nav class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 glass-nav rounded-full px-6 py-4 flex items-center gap-8 shadow-2xl z-50 ring-1 ring-white/20">
+<button class="p-2 text-primary font-bold">
+<span class="material-symbols-outlined block" data-icon="dashboard">dashboard</span>
+</button>
+<button class="p-2 text-primary bg-primary-container rounded-full scale-110">
+<span class="material-symbols-outlined block" data-icon="subscriptions" style="font-variation-settings: 'FILL' 1;">subscriptions</span>
+</button>
+<button class="p-2 text-on-surface-variant">
+<span class="material-symbols-outlined block" data-icon="analytics">analytics</span>
+</button>
+<button class="p-2 text-on-surface-variant">
+<span class="material-symbols-outlined block" data-icon="account_circle">account_circle</span>
+</button>
+</nav>
+</body></html>
