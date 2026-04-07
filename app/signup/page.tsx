@@ -48,51 +48,56 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--background)] px-4 py-8">
-      <div className="w-full max-w-md p-8 bg-[var(--color-card)] border border-[var(--color-border)] rounded-2xl shadow-xl">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--surface)] px-4 py-8 relative overflow-hidden">
+      
+      {/* Decorative Blobs */}
+      <div className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] bg-[var(--primary)]/10 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className="absolute -bottom-[20%] -right-[10%] w-[60%] h-[60%] bg-[var(--secondary)]/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+      <div className="w-full max-w-md p-8 sm:p-10 bg-[var(--surface-container-lowest)]/80 backdrop-blur-2xl border border-[var(--outline-variant)]/30 rounded-3xl shadow-2xl relative z-10 my-8">
         <div className="text-center mb-8">
-          <div className="mx-auto w-12 h-12 bg-emerald-100 dark:bg-emerald-900 rounded-full flex items-center justify-center mb-4">
-            <UserPlus className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+          <div className="mx-auto w-16 h-16 bg-[var(--surface-container)] rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-[var(--outline-variant)]/20">
+            <UserPlus className="w-7 h-7 text-[var(--primary)]" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Create an account</h1>
-          <p className="text-sm text-[var(--color-muted)] mt-2">Start saving money today</p>
+          <h1 className="text-3xl font-display font-extrabold tracking-tight text-[var(--on-surface)]">Create Account</h1>
+          <p className="text-sm font-medium text-[var(--on-surface-variant)] mt-2">Start managing your digital subscriptions today</p>
         </div>
 
-        <form onSubmit={handleEmailSignup} className="space-y-4">
-          {error && <div className="p-3 text-sm text-red-500 bg-red-50 dark:bg-red-950/50 rounded-lg">{error}</div>}
+        <form onSubmit={handleEmailSignup} className="space-y-5">
+          {error && <div className="p-3 text-sm font-bold text-[var(--error)] bg-[var(--error-container)] rounded-xl">{error}</div>}
           
           <div>
-            <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Full Name</label>
+            <label className="block text-xs font-bold text-[var(--on-surface-variant)] uppercase tracking-wider mb-2">Full Name</label>
             <input 
               type="text" 
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-2 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] focus:border-transparent transition-colors"
+              className="w-full bg-[var(--surface-container-low)] border border-transparent focus:border-[var(--primary)] focus:bg-[var(--surface-container-lowest)] rounded-xl py-3 px-4 text-[var(--on-surface)] text-sm transition-all focus:ring-4 focus:ring-[var(--primary)]/10 outline-none"
               placeholder="John Doe"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Email address</label>
+            <label className="block text-xs font-bold text-[var(--on-surface-variant)] uppercase tracking-wider mb-2">Email address</label>
             <input 
               type="email" 
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] focus:border-transparent transition-colors"
+              className="w-full bg-[var(--surface-container-low)] border border-transparent focus:border-[var(--primary)] focus:bg-[var(--surface-container-lowest)] rounded-xl py-3 px-4 text-[var(--on-surface)] text-sm transition-all focus:ring-4 focus:ring-[var(--primary)]/10 outline-none"
               placeholder="you@example.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Password</label>
+            <label className="block text-xs font-bold text-[var(--on-surface-variant)] uppercase tracking-wider mb-2">Password</label>
             <input 
               type="password" 
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] focus:border-transparent transition-colors"
+              className="w-full bg-[var(--surface-container-low)] border border-transparent focus:border-[var(--primary)] focus:bg-[var(--surface-container-lowest)] rounded-xl py-3 px-4 text-[var(--on-surface)] text-sm transition-all focus:ring-4 focus:ring-[var(--primary)]/10 outline-none"
               placeholder="••••••••"
             />
           </div>
@@ -100,25 +105,25 @@ export default function SignupPage() {
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full py-2.5 px-4 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white rounded-lg font-medium transition-colors disabled:opacity-50 mt-2"
+            className="w-full mt-6 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-container)] text-[var(--on-primary)] py-4 rounded-xl font-bold shadow-lg shadow-[var(--primary)]/20 hover:scale-[1.02] transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
           >
             {loading ? "Creating account..." : "Sign up"}
           </button>
         </form>
 
-        <div className="mt-6 relative">
+        <div className="mt-8 relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-[var(--color-border)]"></div>
+            <div className="w-full border-t border-[var(--outline-variant)]/30"></div>
           </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-[var(--color-card)] text-[var(--color-muted)]">Or continue with</span>
+          <div className="relative flex justify-center text-xs font-bold uppercase tracking-wider">
+            <span className="px-4 bg-[var(--surface-container-lowest)] text-[var(--on-surface-variant)]">Or continue with</span>
           </div>
         </div>
 
         <button 
           onClick={handleGoogleSignup}
           type="button"
-          className="mt-6 w-full flex items-center justify-center gap-3 py-2.5 px-4 border border-[var(--color-border)] hover:bg-[var(--color-background)] rounded-lg font-medium transition-colors text-[var(--foreground)]"
+          className="mt-8 w-full flex items-center justify-center gap-3 py-3.5 px-4 bg-[var(--surface-container-low)] hover:bg-[var(--surface-container)] text-[var(--on-surface)] rounded-xl font-bold transition-colors shadow-sm"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -129,9 +134,9 @@ export default function SignupPage() {
           Sign up with Google
         </button>
 
-        <p className="mt-8 text-center text-sm text-[var(--color-muted)]">
+        <p className="mt-8 text-center text-sm font-medium text-[var(--on-surface-variant)]">
           Already have an account?{" "}
-          <Link href="/login" className="text-[var(--color-brand)] hover:underline font-medium">
+          <Link href="/login" className="text-[var(--primary)] hover:text-[var(--primary-container)] hover:underline font-bold transition-colors">
             Log in
           </Link>
         </p>
