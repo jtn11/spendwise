@@ -21,7 +21,7 @@ export default function SignupPage() {
   const handleEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setError(""); 
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       // Update profile
