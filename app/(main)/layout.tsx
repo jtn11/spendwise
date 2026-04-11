@@ -42,7 +42,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <h1 className="font-display font-extrabold text-[var(--primary)] text-2xl tracking-tight">The Vault</h1>
           <p className="text-xs text-[var(--on-surface-variant)] font-medium">Financial Concierge</p>
         </div>
-        
+
         <nav className="flex flex-col gap-2 flex-1 overflow-y-auto hidden-scrollbar">
           <Link href="/dashboard" className={`flex items-center gap-3 px-4 py-3 rounded-full transition-all ${pathname === '/dashboard' ? 'bg-[var(--surface-container)] text-[var(--primary)] font-semibold translate-x-1' : 'text-[var(--on-surface-variant)] hover:bg-[var(--surface-container)]/50'}`}>
             <LayoutDashboard className="w-5 h-5" />
@@ -61,17 +61,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <span className="text-sm">Reports</span>
           </Link>
         </nav>
-        
+
         <div className="mt-auto p-4 space-y-3">
-          <button 
+          <button
             onClick={() => { logOut(); router.push("/login"); }}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-full text-sm font-medium text-[var(--on-surface-variant)] hover:bg-[var(--surface-container)]/50 transition-colors"
           >
             <LogOut className="w-4 h-4" />
             <span>Log out</span>
           </button>
-          
-          <button 
+
+          <button
             onClick={() => setIsModalOpen(true)}
             className="w-full flex items-center justify-center gap-2 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-container)] text-[var(--on-primary)] py-3 rounded-full font-bold shadow-lg shadow-[var(--primary)]/20 hover:scale-95 transition-transform">
             <Plus className="w-5 h-5" />
@@ -88,13 +88,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <h2 className="font-display font-bold text-lg text-[var(--primary)]">Financial Overview</h2>
             <p className="text-xs text-[var(--on-surface-variant)]">Welcome back{user.displayName ? `, ${user.displayName}` : ''}</p>
           </div>
-          
+
           <div className="flex items-center gap-4">
             <div className="relative hidden sm:block">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--outline)]" />
-              <input 
-                className="bg-[var(--surface-container-low)] border-none rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 w-64 text-[var(--on-surface)] placeholder:text-[var(--on-surface-variant)]/70" 
-                placeholder="Search services..." 
+              <input
+                className="bg-[var(--surface-container-low)] border-none rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 w-64 text-[var(--on-surface)] placeholder:text-[var(--on-surface-variant)]/70"
+                placeholder="Search services..."
                 type="text"
               />
             </div>
@@ -126,14 +126,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <List className="w-6 h-6" />
           <span className="text-[10px] font-bold">Subs</span>
         </Link>
-        
+
         {/* Floating Action Button for Mobile */}
-        <button 
+        <button
           onClick={() => setIsModalOpen(true)}
           className="-mt-12 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-container)] w-14 h-14 rounded-full flex items-center justify-center text-[var(--on-primary)] shadow-2xl shadow-[var(--primary)]/40">
           <Plus className="w-8 h-8" />
         </button>
-        
+
         <Link className={`flex flex-col items-center gap-1 ${pathname === '/insights' ? 'text-[var(--primary)]' : 'text-[var(--on-surface-variant)]'}`} href="/insights">
           <PieChart className="w-6 h-6" />
           <span className="text-[10px] font-bold">Insights</span>
@@ -145,16 +145,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </nav>
 
       {/* FAB for Desktop (Contextual) */}
-      <button 
+      <button
         onClick={() => setIsModalOpen(true)}
         className="hidden md:flex fixed bottom-8 right-8 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-container)] text-[var(--on-primary)] p-4 rounded-full shadow-2xl shadow-[var(--primary)]/30 items-center gap-3 hover:scale-105 transition-transform group z-50">
         <Plus className="w-5 h-5" />
         <span className="font-bold text-sm pr-2">Add New Subscription</span>
       </button>
 
-      <AddSubscriptionModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <AddSubscriptionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
       />
     </div>
   );
