@@ -3,6 +3,7 @@
 import { X, Calendar, DollarSign, Tag, RefreshCw } from "lucide-react";
 import { useState, useEffect } from "react";
 import type { Subscription, BillingCycle } from "@/lib/types";
+import { useAuth } from "@/components/AuthProvider";
 
 interface AddSubscriptionModalProps {
   isOpen: boolean;
@@ -10,7 +11,9 @@ interface AddSubscriptionModalProps {
 }
 
 export default function AddSubscriptionModal({ isOpen, onClose }: AddSubscriptionModalProps) {
+  const { user } = useAuth();
   const [isMounting, setIsMounting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     price: "",
@@ -31,11 +34,55 @@ export default function AddSubscriptionModal({ isOpen, onClose }: AddSubscriptio
 
   if (!isOpen && !isMounting) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Connect to Firebase
-    console.log("Submitting:", formData);
-    onClose();
+    if (!user) {
+      alert("You must be logged in to add a subscription");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/subscriptions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.uid,
+          name: formData.name,
+          price: formData.price,
+          billingCycle: formData.billingCycle,
+          category: formData.category,
+          nextBillingDate: formData.nextBillingDate,
+          autoRenew: formData.autoRenew,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save subscription");
+      }
+      
+      // Notify parent to refresh
+      window.dispatchEvent(new CustomEvent("refreshSubscriptions"));
+      
+      // Reset form
+      setFormData({
+        name: "",
+        price: "",
+        billingCycle: "Monthly",
+        category: "Entertainment",
+        nextBillingDate: "",
+        autoRenew: true,
+      });
+      
+      onClose();
+    } catch (error) {
+      console.error("Error adding subscription:", error);
+      alert("Failed to add subscription. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -158,9 +205,10 @@ export default function AddSubscriptionModal({ isOpen, onClose }: AddSubscriptio
 
           <button 
             type="submit"
-            className="w-full mt-4 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-container)] hover:scale-[1.02] text-[var(--on-primary)] py-4 rounded-xl font-bold shadow-lg shadow-[var(--primary)]/20 transition-all active:scale-95"
+            disabled={isSubmitting}
+            className="w-full mt-4 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-container)] hover:scale-[1.02] text-[var(--on-primary)] py-4 rounded-xl font-bold shadow-lg shadow-[var(--primary)]/20 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed disabled:scale-100"
           >
-            Add Subscription
+            {isSubmitting ? "Adding..." : "Add Subscription"}
           </button>
         </form>
       </div>

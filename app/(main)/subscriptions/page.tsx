@@ -1,64 +1,54 @@
 "use client";
 
 import { Search, Filter, Plus, PiggyBank } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/components/AuthProvider";
+import type { Subscription } from "@/lib/types";
 
 export default function SubscriptionsPage() {
+  const { user } = useAuth();
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const openModal = () => {
     window.dispatchEvent(new CustomEvent("openAddModal"));
   };
 
-  const subscriptions = [
-    {
-      id: "1",
-      name: "Netflix Premium",
-      category: "Entertainment • 4K UHD",
-      cycle: "Monthly",
-      date: "Oct 24, 2023",
-      cost: "$19.99",
-      status: "Active",
-      logo: "https://lh3.googleusercontent.com/aida-public/AB6AXuComJI1kDcd930VXvzAenDfpxOCAAJFJ7XAOmqKzvpzL9RK7kt2nWDwWyXXoJ56PIA283veE5durrmSWgwT7VhFoDZ4ydVU3QU-yV5bH_WehW6dogTUv6xI_EIHfkwla-LE0OohtGhkTwW_H3g2yiz2t9MyQAjYAvBe9_P6v1iL55ApjR4xJzzes2ZB3JOG5bursf-pFGkkzn9wO7_dumFe9HfpLNXe9BgTo9sAzzUHWvQ4scC8Qkjv1XbbEtGQG1NDfzBz29lLIRQf"
-    },
-    {
-      id: "2",
-      name: "Creative Cloud",
-      category: "Design & Creative • Full Suite",
-      cycle: "Annual",
-      date: "Jan 12, 2024",
-      cost: "$54.99",
-      status: "Active",
-      logo: "https://lh3.googleusercontent.com/aida-public/AB6AXuDtuDA6OXldJVJ80Jl29zpsvpvOMxgV_I6jFZ-KIGL9AGFk7Lu30VDB1oMdG93N0FesXTNrlEWpbMbG424cdRPZEnuXYj3wk5jtNKS-sXW3cyIhWeVKVMzBQgswmhF9nMTTjgw2WGysRRDAhWwYlF27Qgxmh0VJmrhiXHl_vjqFKbfUzu9wKPXwlDd67nWvUK2jwgFUkFCz-nuctxJWsqgnQYzOphz4Hqqr_ZA-V0ft3c-W9JRIuNkGATv-nxzaYcH6USV8brQKAiov"
-    },
-    {
-      id: "3",
-      name: "Spotify Family",
-      category: "Music • 6 Accounts",
-      cycle: "Monthly",
-      date: "Nov 02, 2023",
-      cost: "$16.99",
-      status: "Active",
-      logo: "https://lh3.googleusercontent.com/aida-public/AB6AXuDTuaNmv2M4BnhVZkyCTPa_agcjcfDt5xyvZByZnR5KbPqxUq4iWGvB0RY8kg75MX1GNPempyHKQt9gb86WCmobdqoVc4ijV6iSyIs7BcdB-PBQxhFB85-JIZhT3Cg2IzesMxst06jDAsghTu6F4VSyYc94CSHYLK47Ftsjd_SMgtG_18UGcQsrgZA97FztZKsS5b0Hi8MU2m7h3fnis4PRjuea1azdgd-VXSlysEgN5MDeibJR5zGQOibIiUeP3TqhOu_SZ-ZJnmiC"
-    },
-    {
-      id: "4",
-      name: "Masterclass",
-      category: "Education • Annual Plan",
-      cycle: "Annual",
-      date: "Next bill hidden",
-      cost: "$15.00",
-      status: "Paused",
-      logo: "https://lh3.googleusercontent.com/aida-public/AB6AXuDrPj3Uw0Yi0nhy3BLzQ_Z0Y24Y6FMnoP2AywR41yl_odXJWKYhd1bdH9OdirE6brvzO2kvIibS-SXXXzCfwQ6u5j3tOVJegX0_GPlQYYACNNNE2zWxjI9EO_zu76AE-PMzGLXTpyXnMuWpt4j7sFreI-wkyQ21JyJLGO9o3n3zGY2WG_DYCVkAPptfFi_Y2tmTSRe9WbL1J4uuRXZbEANu6N3k8zESOqfAs48pWIhJ7ijEHfuQhz9JlXsPU3rnDjdTqkCKUXVOk_46"
-    },
-    {
-      id: "5",
-      name: "WSJ Digital",
-      category: "News & Business • Global Access",
-      cycle: "Monthly",
-      date: "Oct 30, 2023",
-      cost: "$38.99",
-      status: "Action Required",
-      logo: "https://lh3.googleusercontent.com/aida-public/AB6AXuBpcGbmDMNJtpdq6sntGB5B4IUbc8QpKmWZ4IsTyFHGFuRXRTwSmyxKn4krrOABe3isX374q07waU4csPQuM2Bch3wbl9gDwI2kqL_IA-dMGc12jEPBnQrXvhkhgqpX1I3itHOjTBHvLzfeEbp15ym-CbmN6vCMGWKNdvJgeB6dTc6cIr19NJkuWFbbAoldrj6lz8TN1LXOLoBS-TBnxdEmGBYTrJBkJPq4Nn5jMySMR04cpIgsMSn0qUzbUzALqz7JMpYYAMj_fVqu"
-    }
-  ];
+  useEffect(() => {
+    const fetchSubscriptions = async () => {
+      if (!user) return;
+      
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/subscriptions?userId=${user.uid}`);
+        if (!response.ok) throw new Error("Failed to fetch");
+        const data = await response.json();
+        setSubscriptions(data);
+      } catch (error) {
+        console.error("Error loading subscriptions:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSubscriptions();
+
+    // Re-fetch when modal is closed (if a new one was added)
+    // We can use a custom event or just trust the user to refresh if needed, 
+    // but better to add an event listener.
+    const handleRefresh = () => fetchSubscriptions();
+    window.addEventListener("refreshSubscriptions", handleRefresh);
+    return () => window.removeEventListener("refreshSubscriptions", handleRefresh);
+  }, [user]);
+
+  const totalMonthly = subscriptions.reduce((acc, sub) => {
+    if (sub.billingCycle === "Monthly") return acc + sub.price;
+    if (sub.billingCycle === "Weekly") return acc + sub.price * 4;
+    if (sub.billingCycle === "Yearly") return acc + sub.price / 12;
+    return acc;
+  }, 0);
+
+  const activeCount = subscriptions.filter(sub => sub.autoRenew).length;
 
   return (
     <div className="p-6 lg:p-10 max-w-6xl mx-auto animate-in fade-in duration-500">
@@ -74,12 +64,12 @@ export default function SubscriptionsPage() {
           <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-[var(--primary)]/5 rounded-full blur-2xl"></div>
           <div className="relative">
             <p className="text-xs font-bold text-[var(--on-surface-variant)] uppercase tracking-widest mb-1">Total Monthly</p>
-            <p className="text-4xl font-display font-extrabold text-[var(--primary)]">$482.50</p>
+            <p className="text-4xl font-display font-extrabold text-[var(--primary)]">${totalMonthly.toFixed(2)}</p>
           </div>
           <div className="h-12 w-px bg-[var(--outline-variant)]/30"></div>
           <div className="relative">
             <p className="text-xs font-bold text-[var(--on-surface-variant)] uppercase tracking-widest mb-1">Active Now</p>
-            <p className="text-4xl font-display font-extrabold text-[var(--secondary)]">14</p>
+            <p className="text-4xl font-display font-extrabold text-[var(--secondary)]">{activeCount}</p>
           </div>
         </div>
       </div>
@@ -127,55 +117,80 @@ export default function SubscriptionsPage() {
         </div>
 
         {/* List Items */}
-        {subscriptions.map((sub) => (
-          <div key={sub.id} className={`grid grid-cols-12 gap-4 items-center px-8 py-5 rounded-xl transition-all group ${sub.status === 'Paused' ? 'bg-[var(--surface-container-low)]/50 shadow-sm opacity-80 grayscale hover:grayscale-0' : 'bg-[var(--surface-container-lowest)] shadow-sm hover:shadow-md'}`}>
-            
-            {/* Logo and Name */}
-            <div className="col-span-12 md:col-span-4 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-[var(--surface-container)] flex items-center justify-center p-2 overflow-hidden shadow-sm">
-                <img alt={sub.name} src={sub.logo} className="w-full h-full object-contain" />
-              </div>
-              <div>
-                <h3 className="text-lg font-display font-bold text-[var(--on-surface)] group-hover:text-[var(--primary)] transition-colors">{sub.name}</h3>
-                <p className="text-xs text-[var(--on-surface-variant)]">{sub.category}</p>
-              </div>
-            </div>
-
-            {/* Billing Cycle */}
-            <div className="col-span-4 md:col-span-2 flex justify-center">
-              <span className="text-xs font-bold text-[var(--on-surface-variant)] bg-[var(--surface-container)] px-3 py-1 rounded-full uppercase tracking-tighter">{sub.cycle}</span>
-            </div>
-
-            {/* Next Bill */}
-            <div className="col-span-4 md:col-span-2">
-              <p className={`text-sm font-medium ${sub.status === 'Paused' ? 'text-[var(--on-surface-variant)] italic' : 'text-[var(--on-surface)]'}`}>{sub.date}</p>
-            </div>
-
-            {/* Cost */}
-            <div className="col-span-4 md:col-span-2 text-right">
-              <p className={`text-xl font-display font-bold ${sub.status === 'Paused' ? 'text-[var(--on-surface-variant)]' : 'text-[var(--on-surface)]'}`}>{sub.cost}</p>
-            </div>
-
-            {/* Status Badge */}
-            <div className="col-span-12 md:col-span-2 flex justify-end">
-              {sub.status === "Active" && (
-                <span className="flex items-center gap-1.5 px-3 py-1 bg-[var(--secondary-container)] text-[var(--on-secondary-container)] rounded-full text-[10px] font-bold uppercase tracking-wider">
-                  <span className="w-1.5 h-1.5 bg-[var(--secondary)] rounded-full animate-pulse"></span> Active
-                </span>
-              )}
-              {sub.status === "Paused" && (
-                <span className="flex items-center gap-1.5 px-3 py-1 bg-[var(--surface-container-highest)] text-[var(--on-surface-variant)] rounded-full text-[10px] font-bold uppercase tracking-wider">
-                  <span className="w-1.5 h-1.5 bg-[var(--on-surface-variant)] rounded-full"></span> Paused
-                </span>
-              )}
-              {sub.status === "Action Required" && (
-                <span className="flex items-center gap-1.5 px-3 py-1 bg-[var(--error-container)] text-[var(--on-error-container)] rounded-full text-[10px] font-bold uppercase tracking-wider">
-                  <span className="w-1.5 h-1.5 bg-[var(--error)] rounded-full"></span> Action Required
-                </span>
-              )}
-            </div>
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20 text-[var(--on-surface-variant)]">
+            <div className="w-12 h-12 border-4 border-[var(--primary)]/20 border-t-[var(--primary)] rounded-full animate-spin mb-4"></div>
+            <p className="font-medium">Loading your subscriptions...</p>
           </div>
-        ))}
+        ) : subscriptions.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 bg-[var(--surface-container-lowest)] rounded-3xl border-2 border-dashed border-[var(--outline-variant)]">
+            <PiggyBank className="w-16 h-16 text-[var(--outline)] mb-4" />
+            <h3 className="text-xl font-display font-bold text-[var(--on-surface)] mb-2">No subscriptions yet</h3>
+            <p className="text-[var(--on-surface-variant)] mb-8">Add your first subscription to start tracking.</p>
+            <button 
+              onClick={openModal}
+              className="px-8 py-3 bg-[var(--primary)] text-[var(--on-primary)] rounded-full font-bold shadow-lg shadow-[var(--primary)]/20 hover:scale-105 transition-transform"
+            >
+              Add Your First One
+            </button>
+          </div>
+        ) : (
+          subscriptions.map((sub) => {
+            const status = sub.autoRenew ? "Active" : "Paused";
+            const formattedDate = new Date(sub.nextBillingDate).toLocaleDateString('en-US', {
+              month: 'short',
+              day: '2-digit',
+              year: 'numeric'
+            });
+            
+            return (
+              <div key={sub.id} className={`grid grid-cols-12 gap-4 items-center px-8 py-5 rounded-xl transition-all group ${status === 'Paused' ? 'bg-[var(--surface-container-low)]/50 shadow-sm opacity-80 grayscale hover:grayscale-0' : 'bg-[var(--surface-container-lowest)] shadow-sm hover:shadow-md'}`}>
+                
+                {/* Logo and Name */}
+                <div className="col-span-12 md:col-span-4 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-[var(--surface-container)] flex items-center justify-center p-2 overflow-hidden shadow-sm">
+                    <div className="w-full h-full flex items-center justify-center bg-[var(--primary)]/10 text-[var(--primary)] font-bold text-xl rounded-lg">
+                      {sub.name.charAt(0).toUpperCase()}
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-display font-bold text-[var(--on-surface)] group-hover:text-[var(--primary)] transition-colors">{sub.name}</h3>
+                    <p className="text-xs text-[var(--on-surface-variant)]">{sub.category}</p>
+                  </div>
+                </div>
+
+                {/* Billing Cycle */}
+                <div className="col-span-4 md:col-span-2 flex justify-center">
+                  <span className="text-xs font-bold text-[var(--on-surface-variant)] bg-[var(--surface-container)] px-3 py-1 rounded-full uppercase tracking-tighter">{sub.billingCycle}</span>
+                </div>
+
+                {/* Next Bill */}
+                <div className="col-span-4 md:col-span-2">
+                  <p className={`text-sm font-medium ${status === 'Paused' ? 'text-[var(--on-surface-variant)] italic' : 'text-[var(--on-surface)]'}`}>{formattedDate}</p>
+                </div>
+
+                {/* Cost */}
+                <div className="col-span-4 md:col-span-2 text-right">
+                  <p className={`text-xl font-display font-bold ${status === 'Paused' ? 'text-[var(--on-surface-variant)]' : 'text-[var(--on-surface)]'}`}>${sub.price.toFixed(2)}</p>
+                </div>
+
+                {/* Status Badge */}
+                <div className="col-span-12 md:col-span-2 flex justify-end">
+                  {status === "Active" && (
+                    <span className="flex items-center gap-1.5 px-3 py-1 bg-[var(--secondary-container)] text-[var(--on-secondary-container)] rounded-full text-[10px] font-bold uppercase tracking-wider">
+                      <span className="w-1.5 h-1.5 bg-[var(--secondary)] rounded-full animate-pulse"></span> Active
+                    </span>
+                  )}
+                  {status === "Paused" && (
+                    <span className="flex items-center gap-1.5 px-3 py-1 bg-[var(--surface-container-highest)] text-[var(--on-surface-variant)] rounded-full text-[10px] font-bold uppercase tracking-wider">
+                      <span className="w-1.5 h-1.5 bg-[var(--on-surface-variant)] rounded-full"></span> Paused
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* Footer Summary (Glassmorphism Insight) */}
