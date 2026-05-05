@@ -41,6 +41,13 @@ export default function AddSubscriptionModal({ isOpen, onClose }: AddSubscriptio
       return;
     }
 
+    // Basic validation
+    const priceNum = parseFloat(formData.price);
+    if (isNaN(priceNum) || priceNum <= 0) {
+      alert("Please enter a valid positive price.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const response = await fetch("/api/subscriptions", {
@@ -50,8 +57,8 @@ export default function AddSubscriptionModal({ isOpen, onClose }: AddSubscriptio
         },
         body: JSON.stringify({
           userId: user.uid,
-          name: formData.name,
-          price: formData.price,
+          name: formData.name.trim(),
+          price: priceNum,
           billingCycle: formData.billingCycle,
           category: formData.category,
           nextBillingDate: formData.nextBillingDate,
@@ -59,8 +66,10 @@ export default function AddSubscriptionModal({ isOpen, onClose }: AddSubscriptio
         }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error("Failed to save subscription");
+        throw new Error(data.error || data.details || "Failed to save subscription");
       }
       
       // Notify parent to refresh
@@ -77,9 +86,9 @@ export default function AddSubscriptionModal({ isOpen, onClose }: AddSubscriptio
       });
       
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding subscription:", error);
-      alert("Failed to add subscription. Please try again.");
+      alert(`Failed to add subscription: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }

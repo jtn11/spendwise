@@ -9,37 +9,52 @@ export default function SubscriptionsPage() {
   const { user } = useAuth();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"All" | "Active" | "Paused">("All");
 
   const openModal = () => {
     window.dispatchEvent(new CustomEvent("openAddModal"));
   };
 
-  useEffect(() => {
-    const fetchSubscriptions = async () => {
-      if (!user) return;
-      
-      setLoading(true);
-      try {
-        const response = await fetch(`/api/subscriptions?userId=${user.uid}`);
-        if (!response.ok) throw new Error("Failed to fetch");
-        const data = await response.json();
-        setSubscriptions(data);
-      } catch (error) {
-        console.error("Error loading subscriptions:", error);
-      } finally {
-        setLoading(false);
+  const fetchSubscriptions = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/subscriptions?userId=${user.uid}`);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to fetch subscriptions");
       }
-    };
+      const data = await response.json();
+      setSubscriptions(data);
+    } catch (err: any) {
+      console.error("Error loading subscriptions:", err);
+      setError(err.message || "An unexpected error occurred while loading subscriptions.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchSubscriptions();
 
-    // Re-fetch when modal is closed (if a new one was added)
-    // We can use a custom event or just trust the user to refresh if needed, 
-    // but better to add an event listener.
     const handleRefresh = () => fetchSubscriptions();
     window.addEventListener("refreshSubscriptions", handleRefresh);
     return () => window.removeEventListener("refreshSubscriptions", handleRefresh);
   }, [user]);
+
+  const filteredSubscriptions = subscriptions.filter(sub => {
+    const matchesSearch = sub.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         sub.category.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const status = sub.autoRenew ? "Active" : "Paused";
+    const matchesStatus = statusFilter === "All" || status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
 
   const totalMonthly = subscriptions.reduce((acc, sub) => {
     if (sub.billingCycle === "Monthly") return acc + sub.price;
@@ -83,6 +98,8 @@ export default function SubscriptionsPage() {
               className="w-full pl-12 pr-4 py-3 bg-[var(--surface-container-low)] border-none rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--primary)] text-sm font-medium text-[var(--on-surface)]" 
               placeholder="Filter by name or service..." 
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           <button className="p-3 bg-[var(--surface-container-low)] text-[var(--on-surface-variant)] rounded-full hover:bg-[var(--surface-container)] transition-colors">
@@ -91,9 +108,24 @@ export default function SubscriptionsPage() {
         </div>
         
         <div className="flex items-center gap-2 bg-[var(--surface-container-low)] p-1.5 rounded-full">
-          <button className="px-5 py-2 bg-[var(--surface-container-lowest)] shadow-sm rounded-full text-sm font-bold text-[var(--primary)]">All</button>
-          <button className="px-5 py-2 text-sm font-medium text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors">Active</button>
-          <button className="px-5 py-2 text-sm font-medium text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors">Paused</button>
+          <button 
+            onClick={() => setStatusFilter("All")}
+            className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${statusFilter === "All" ? "bg-[var(--surface-container-lowest)] shadow-sm text-[var(--primary)]" : "text-[var(--on-surface-variant)] hover:text-[var(--on-surface)]"}`}
+          >
+            All
+          </button>
+          <button 
+            onClick={() => setStatusFilter("Active")}
+            className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${statusFilter === "Active" ? "bg-[var(--surface-container-lowest)] shadow-sm text-[var(--primary)]" : "text-[var(--on-surface-variant)] hover:text-[var(--on-surface)]"}`}
+          >
+            Active
+          </button>
+          <button 
+            onClick={() => setStatusFilter("Paused")}
+            className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${statusFilter === "Paused" ? "bg-[var(--surface-container-lowest)] shadow-sm text-[var(--primary)]" : "text-[var(--on-surface-variant)] hover:text-[var(--on-surface)]"}`}
+          >
+            Paused
+          </button>
         </div>
         
         <button 
@@ -122,26 +154,53 @@ export default function SubscriptionsPage() {
             <div className="w-12 h-12 border-4 border-[var(--primary)]/20 border-t-[var(--primary)] rounded-full animate-spin mb-4"></div>
             <p className="font-medium">Loading your subscriptions...</p>
           </div>
-        ) : subscriptions.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 bg-[var(--surface-container-lowest)] rounded-3xl border-2 border-dashed border-[var(--outline-variant)]">
-            <PiggyBank className="w-16 h-16 text-[var(--outline)] mb-4" />
-            <h3 className="text-xl font-display font-bold text-[var(--on-surface)] mb-2">No subscriptions yet</h3>
-            <p className="text-[var(--on-surface-variant)] mb-8">Add your first subscription to start tracking.</p>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-16 bg-red-50/50 rounded-3xl border border-red-100 text-red-600">
+            <h3 className="text-xl font-display font-bold mb-2">Error loading subscriptions</h3>
+            <p className="text-sm opacity-80 mb-6 max-w-sm text-center">{error}</p>
             <button 
-              onClick={openModal}
-              className="px-8 py-3 bg-[var(--primary)] text-[var(--on-primary)] rounded-full font-bold shadow-lg shadow-[var(--primary)]/20 hover:scale-105 transition-transform"
+              onClick={fetchSubscriptions}
+              className="px-6 py-2 bg-red-600 text-white rounded-full font-bold text-sm hover:bg-red-700 transition-colors"
             >
-              Add Your First One
+              Try Again
             </button>
           </div>
+        ) : filteredSubscriptions.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 bg-[var(--surface-container-lowest)] rounded-3xl border-2 border-dashed border-[var(--outline-variant)]">
+            <PiggyBank className="w-16 h-16 text-[var(--outline)] mb-4" />
+            <h3 className="text-xl font-display font-bold text-[var(--on-surface)] mb-2">
+              {searchQuery || statusFilter !== "All" ? "No matches found" : "No subscriptions yet"}
+            </h3>
+            <p className="text-[var(--on-surface-variant)] mb-8">
+              {searchQuery || statusFilter !== "All" 
+                ? "Try adjusting your search or filters to find what you're looking for." 
+                : "Add your first subscription to start tracking."}
+            </p>
+            {!searchQuery && statusFilter === "All" && (
+              <button 
+                onClick={openModal}
+                className="px-8 py-3 bg-[var(--primary)] text-[var(--on-primary)] rounded-full font-bold shadow-lg shadow-[var(--primary)]/20 hover:scale-105 transition-transform"
+              >
+                Add Your First One
+              </button>
+            )}
+            {(searchQuery || statusFilter !== "All") && (
+              <button 
+                onClick={() => {setSearchQuery(""); setStatusFilter("All");}}
+                className="px-8 py-3 border border-[var(--outline)] text-[var(--on-surface)] rounded-full font-bold hover:bg-[var(--surface-container-low)] transition-colors"
+              >
+                Clear All Filters
+              </button>
+            )}
+          </div>
         ) : (
-          subscriptions.map((sub) => {
+          filteredSubscriptions.map((sub) => {
             const status = sub.autoRenew ? "Active" : "Paused";
-            const formattedDate = new Date(sub.nextBillingDate).toLocaleDateString('en-US', {
+            const formattedDate = sub.nextBillingDate ? new Date(sub.nextBillingDate).toLocaleDateString('en-US', {
               month: 'short',
               day: '2-digit',
               year: 'numeric'
-            });
+            }) : 'No date';
             
             return (
               <div key={sub.id} className={`grid grid-cols-12 gap-4 items-center px-8 py-5 rounded-xl transition-all group ${status === 'Paused' ? 'bg-[var(--surface-container-low)]/50 shadow-sm opacity-80 grayscale hover:grayscale-0' : 'bg-[var(--surface-container-lowest)] shadow-sm hover:shadow-md'}`}>

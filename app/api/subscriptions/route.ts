@@ -12,10 +12,10 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Remove orderBy to avoid index requirement
     const q = query(
       collection(db, "subscriptions"),
-      where("userId", "==", userId),
-      orderBy("createdAt", "desc")
+      where("userId", "==", userId)
     );
     
     const querySnapshot = await getDocs(q);
@@ -23,6 +23,13 @@ export async function GET(request: NextRequest) {
     
     querySnapshot.forEach((doc) => {
       subscriptions.push({ id: doc.id, ...doc.data() } as Subscription);
+    });
+
+    // Sort in memory: newest first (based on createdAt)
+    subscriptions.sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
     });
 
     return NextResponse.json(subscriptions);
@@ -35,28 +42,42 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log("Creating subscription with body:", body);
+    
     const { userId, name, price, billingCycle, category, nextBillingDate, autoRenew } = body;
 
-    if (!userId || !name || !price) {
+    if (!userId || !name || price === undefined || price === null) {
+      console.error("Missing required fields in POST /api/subscriptions:", { userId, name, price });
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    const parsedPrice = typeof price === "string" ? parseFloat(price) : price;
+    
+    if (isNaN(parsedPrice)) {
+      console.error("Invalid price format:", price);
+      return NextResponse.json({ error: "Invalid price format" }, { status: 400 });
     }
 
     const subscriptionData = {
       userId,
       name,
-      price: parseFloat(price),
+      price: parsedPrice,
       billingCycle,
       category,
       nextBillingDate,
-      autoRenew,
+      autoRenew: !!autoRenew,
       createdAt: new Date().toISOString(),
     };
 
     const docRef = await addDoc(collection(db, "subscriptions"), subscriptionData);
+    console.log("Successfully created subscription with ID:", docRef.id);
     
     return NextResponse.json({ id: docRef.id, ...subscriptionData }, { status: 201 });
   } catch (error) {
     console.error("Error creating subscription:", error);
-    return NextResponse.json({ error: "Failed to create subscription" }, { status: 500 });
+    return NextResponse.json({ 
+      error: "Failed to create subscription", 
+      details: error instanceof Error ? error.message : String(error) 
+    }, { status: 500 });
   }
 }
