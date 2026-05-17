@@ -8,12 +8,14 @@ import { useAuth } from "@/components/AuthProvider";
 interface AddSubscriptionModalProps {
   isOpen: boolean;
   onClose: () => void;
+  editData?: Subscription | null;
 }
 
-export default function AddSubscriptionModal({ isOpen, onClose }: AddSubscriptionModalProps) {
+export default function AddSubscriptionModal({ isOpen, onClose, editData }: AddSubscriptionModalProps) {
   const { user } = useAuth();
   const [isMounting, setIsMounting] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     price: "",
@@ -22,6 +24,31 @@ export default function AddSubscriptionModal({ isOpen, onClose }: AddSubscriptio
     nextBillingDate: "",
     autoRenew: true,
   });
+
+  useEffect(() => {
+    if (isOpen) {
+      if (editData) {
+        setFormData({
+          name: editData.name,
+          price: editData.price.toString(),
+          billingCycle: editData.billingCycle,
+          category: editData.category,
+          nextBillingDate: editData.nextBillingDate,
+          autoRenew: editData.autoRenew,
+        });
+      } else {
+        setFormData({
+          name: "",
+          price: "",
+          billingCycle: "Monthly",
+          category: "Entertainment",
+          nextBillingDate: "",
+          autoRenew: true,
+        });
+      }
+    }
+  }, [isOpen, editData]);
+
 
   // Handle entry animation coordination
   useEffect(() => {
@@ -50,8 +77,11 @@ export default function AddSubscriptionModal({ isOpen, onClose }: AddSubscriptio
 
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/subscriptions", {
-        method: "POST",
+      const url = editData ? `/api/subscriptions/${editData.id}` : "/api/subscriptions";
+      const method = editData ? "PUT" : "POST";
+      
+      const response = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
         },
@@ -71,6 +101,7 @@ export default function AddSubscriptionModal({ isOpen, onClose }: AddSubscriptio
       if (!response.ok) {
         throw new Error(data.error || data.details || "Failed to save subscription");
       }
+
       
       // Notify parent to refresh
       window.dispatchEvent(new CustomEvent("refreshSubscriptions"));
@@ -94,6 +125,34 @@ export default function AddSubscriptionModal({ isOpen, onClose }: AddSubscriptio
     }
   };
 
+  const handleDelete = async () => {
+    if (!editData || !editData.id) return;
+    
+    if (!confirm("Are you sure you want to delete this subscription?")) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/subscriptions/${editData.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete subscription");
+      }
+
+      window.dispatchEvent(new CustomEvent("refreshSubscriptions"));
+      onClose();
+    } catch (error: any) {
+      console.error("Error deleting subscription:", error);
+      alert(`Failed to delete subscription: ${error.message}`);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+
   return (
     <div 
       className={`fixed inset-0 z-[1000] flex items-center justify-center transition-all duration-300 ${isMounting ? 'opacity-100 backdrop-blur-md bg-[var(--on-surface)]/40' : 'opacity-0 bg-transparent'}`}
@@ -110,8 +169,12 @@ export default function AddSubscriptionModal({ isOpen, onClose }: AddSubscriptio
           <X className="w-5 h-5" />
         </button>
 
-        <h2 className="font-display font-extrabold text-2xl text-[var(--on-surface)] mb-2">New Subscription</h2>
-        <p className="text-sm text-[var(--on-surface-variant)] mb-8">Enter the details below to track this service.</p>
+        <h2 className="font-display font-extrabold text-2xl text-[var(--on-surface)] mb-2">
+          {editData ? "Edit Subscription" : "New Subscription"}
+        </h2>
+        <p className="text-sm text-[var(--on-surface-variant)] mb-8">
+          {editData ? "Update the details for this service." : "Enter the details below to track this service."}
+        </p>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Service Name */}
@@ -212,13 +275,25 @@ export default function AddSubscriptionModal({ isOpen, onClose }: AddSubscriptio
             </label>
           </div>
 
-          <button 
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full mt-4 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-container)] hover:scale-[1.02] text-[var(--on-primary)] py-4 rounded-xl font-bold shadow-lg shadow-[var(--primary)]/20 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed disabled:scale-100"
-          >
-            {isSubmitting ? "Adding..." : "Add Subscription"}
-          </button>
+          <div className="flex gap-3 mt-4">
+            {editData && (
+              <button 
+                type="button"
+                onClick={handleDelete}
+                disabled={isDeleting || isSubmitting}
+                className="w-1/3 bg-[var(--error-container)] text-[var(--on-error-container)] hover:bg-[var(--error)] hover:text-[var(--on-error)] py-4 rounded-xl font-bold transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed disabled:scale-100 flex items-center justify-center"
+              >
+                {isDeleting ? "..." : "Delete"}
+              </button>
+            )}
+            <button 
+              type="submit"
+              disabled={isSubmitting || isDeleting}
+              className={`${editData ? 'w-2/3' : 'w-full'} bg-gradient-to-br from-[var(--primary)] to-[var(--primary-container)] hover:scale-[1.02] text-[var(--on-primary)] py-4 rounded-xl font-bold shadow-lg shadow-[var(--primary)]/20 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed disabled:scale-100`}
+            >
+              {isSubmitting ? (editData ? "Updating..." : "Adding...") : (editData ? "Update" : "Add Subscription")}
+            </button>
+          </div>
         </form>
       </div>
     </div>

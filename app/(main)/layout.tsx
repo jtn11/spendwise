@@ -6,15 +6,25 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { LayoutDashboard, List, PieChart, BarChart3, Plus, Search, Bell, Settings, LogOut } from "lucide-react";
 import AddSubscriptionModal from "@/components/AddSubscriptionModal";
+import type { Subscription } from "@/lib/types";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { loading, logOut } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingSubscription, setEditingSubscription] = useState<Subscription | null>(null);
 
   useEffect(() => {
-    const handleOpen = () => setIsModalOpen(true);
+    const handleOpen = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail?.subscription) {
+        setEditingSubscription(customEvent.detail.subscription);
+      } else {
+        setEditingSubscription(null);
+      }
+      setIsModalOpen(true);
+    };
     window.addEventListener("openAddModal", handleOpen);
     return () => window.removeEventListener("openAddModal", handleOpen);
   }, []);
@@ -72,7 +82,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </button>
 
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => { setEditingSubscription(null); setIsModalOpen(true); }}
             className="w-full flex items-center justify-center gap-2 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-container)] text-[var(--on-primary)] py-3 rounded-full font-bold shadow-lg shadow-[var(--primary)]/20 hover:scale-95 transition-transform">
             <Plus className="w-5 h-5" />
             <span>Add New</span>
@@ -129,7 +139,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Floating Action Button for Mobile */}
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => { setEditingSubscription(null); setIsModalOpen(true); }}
           className="-mt-12 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-container)] w-14 h-14 rounded-full flex items-center justify-center text-[var(--on-primary)] shadow-2xl shadow-[var(--primary)]/40">
           <Plus className="w-8 h-8" />
         </button>
@@ -146,7 +156,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* FAB for Desktop (Contextual) */}
       <button
-        onClick={() => setIsModalOpen(true)}
+        onClick={() => { setEditingSubscription(null); setIsModalOpen(true); }}
         className="hidden md:flex fixed bottom-8 right-8 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-container)] text-[var(--on-primary)] p-4 rounded-full shadow-2xl shadow-[var(--primary)]/30 items-center gap-3 hover:scale-105 transition-transform group z-50">
         <Plus className="w-5 h-5" />
         <span className="font-bold text-sm pr-2">Add New Subscription</span>
@@ -155,6 +165,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <AddSubscriptionModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        editData={editingSubscription}
       />
     </div>
   );

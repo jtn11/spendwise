@@ -173,7 +173,11 @@ export default function DashboardPage() {
                 const colorClass = colors[index % colors.length];
 
                 return (
-                  <div key={sub.id} className="bg-[var(--surface-container-lowest)] p-5 rounded-xl flex items-center justify-between group hover:shadow-md transition-shadow cursor-pointer">
+                  <div 
+                    key={sub.id} 
+                    onClick={() => window.dispatchEvent(new CustomEvent("openAddModal", { detail: { subscription: sub } }))}
+                    className="bg-[var(--surface-container-lowest)] p-5 rounded-xl flex items-center justify-between group hover:shadow-md transition-shadow cursor-pointer"
+                  >
                     <div className="flex items-center gap-4">
                       <div className={`w-12 h-12 rounded-full ${colorClass} flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform`}>
                         <Icon className="w-6 h-6" />

@@ -203,7 +203,11 @@ export default function SubscriptionsPage() {
             }) : 'No date';
             
             return (
-              <div key={sub.id} className={`grid grid-cols-12 gap-4 items-center px-8 py-5 rounded-xl transition-all group ${status === 'Paused' ? 'bg-[var(--surface-container-low)]/50 shadow-sm opacity-80 grayscale hover:grayscale-0' : 'bg-[var(--surface-container-lowest)] shadow-sm hover:shadow-md'}`}>
+              <div 
+                key={sub.id} 
+                onClick={() => window.dispatchEvent(new CustomEvent("openAddModal", { detail: { subscription: sub } }))}
+                className={`grid grid-cols-12 gap-4 items-center px-8 py-5 rounded-xl transition-all group cursor-pointer ${status === 'Paused' ? 'bg-[var(--surface-container-low)]/50 shadow-sm opacity-80 grayscale hover:grayscale-0' : 'bg-[var(--surface-container-lowest)] shadow-sm hover:shadow-md'}`}
+              >
                 
                 {/* Logo and Name */}
                 <div className="col-span-12 md:col-span-4 flex items-center gap-4">
