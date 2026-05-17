@@ -35,7 +35,7 @@ export default function SubscriptionsPage() {
       setError(err.message || "An unexpected error occurred while loading subscriptions.");
     } finally {
       setLoading(false);
-    }
+    } 
   };
 
   useEffect(() => {

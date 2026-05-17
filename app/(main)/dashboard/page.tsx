@@ -1,6 +1,52 @@
-import { TrendingDown, PlayCircle, Cloud, Briefcase, PiggyBank } from "lucide-react";
+"use client";
+
+import { TrendingDown, PlayCircle, Cloud, Briefcase, PiggyBank, CreditCard } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/components/AuthProvider";
+import type { Subscription } from "@/lib/types";
 
 export default function DashboardPage() {
+  const { user } = useAuth();
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSubscriptions = async () => {
+      if (!user) return;
+      
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/subscriptions?userId=${user.uid}`);
+        if (!response.ok) throw new Error("Failed to fetch");
+        const data = await response.json();
+        setSubscriptions(data);
+      } catch (error) {
+        console.error("Error loading subscriptions:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSubscriptions();
+  }, [user]);
+
+  const totalMonthly = subscriptions.reduce((acc, sub) => {
+    if (sub.billingCycle === "Monthly") return acc + sub.price;
+    if (sub.billingCycle === "Weekly") return acc + sub.price * 4;
+    if (sub.billingCycle === "Yearly") return acc + sub.price / 12;
+    return acc;
+  }, 0);
+
+  const activeCount = subscriptions.filter(sub => sub.autoRenew).length;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const upcomingRenewals = [...subscriptions]
+    .filter(sub => sub.autoRenew && sub.nextBillingDate && new Date(sub.nextBillingDate) >= today)
+    .sort((a, b) => new Date(a.nextBillingDate).getTime() - new Date(b.nextBillingDate).getTime())
+    .slice(0, 3);
+
   return (
     <div className="p-6 lg:p-10 space-y-8 animate-in fade-in duration-500">
       {/* Bento Hero Section */}
@@ -14,7 +60,7 @@ export default function DashboardPage() {
               Monthly Investment
             </span>
             <h3 className="text-5xl md:text-7xl font-display font-extrabold text-[var(--on-surface)] mt-2">
-              $428.50
+              ${totalMonthly.toFixed(2)}
             </h3>
             <div className="flex items-center gap-2 mt-4">
               <span className="flex items-center text-[var(--secondary)] font-bold text-sm bg-[var(--secondary-container)] px-3 py-1 rounded-full">
@@ -27,11 +73,11 @@ export default function DashboardPage() {
           <div className="mt-12 flex gap-4 overflow-x-auto pb-2 hidden-scrollbar">
             <div className="flex-shrink-0 bg-[var(--surface-container-low)] px-6 py-4 rounded-xl min-w-[140px]">
               <p className="text-xs text-[var(--on-surface-variant)] font-medium">Subscriptions</p>
-              <p className="text-xl font-bold mt-1">14 Active</p>
+              <p className="text-xl font-bold mt-1">{subscriptions.length} Total</p>
             </div>
             <div className="flex-shrink-0 bg-[var(--surface-container-low)] px-6 py-4 rounded-xl min-w-[140px]">
               <p className="text-xs text-[var(--on-surface-variant)] font-medium">Auto-renew</p>
-              <p className="text-xl font-bold mt-1">11 Items</p>
+              <p className="text-xl font-bold mt-1">{activeCount} Items</p>
             </div>
             <div className="flex-shrink-0 bg-[var(--surface-container-low)] px-6 py-4 rounded-xl min-w-[140px]">
               <p className="text-xs text-[var(--on-surface-variant)] font-medium">Yearly Savings</p>
@@ -88,56 +134,65 @@ export default function DashboardPage() {
           </div>
           
           <div className="space-y-3">
-            {/* Upcoming Item 1 */}
-            <div className="bg-[var(--surface-container-lowest)] p-5 rounded-xl flex items-center justify-between group hover:shadow-md transition-shadow cursor-pointer">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-[#1e333c] flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform">
-                  <PlayCircle className="w-6 h-6" />
-                </div>
-                <div>
-                  <h4 className="font-sans font-semibold text-sm text-[var(--on-surface)]">Netflix Premium</h4>
-                  <p className="text-xs text-[var(--on-surface-variant)]">Billed on Oct 12</p>
-                </div>
+            {loading ? (
+              <div className="text-center py-8 text-[var(--on-surface-variant)] text-sm">
+                <div className="w-8 h-8 border-4 border-[var(--primary)]/20 border-t-[var(--primary)] rounded-full animate-spin mx-auto mb-3"></div>
+                Loading renewals...
               </div>
-              <div className="text-right">
-                <p className="font-display font-bold text-sm text-[var(--on-surface)]">$19.99</p>
-                <span className="inline-block px-2 py-0.5 bg-[var(--error-container)] text-[var(--on-error-container)] text-[10px] font-bold rounded-full mt-1">Due in 2 days</span>
+            ) : upcomingRenewals.length === 0 ? (
+              <div className="text-center py-8 bg-[var(--surface-container-lowest)] rounded-xl border border-dashed border-[var(--outline-variant)] text-[var(--on-surface-variant)] text-sm">
+                No upcoming renewals found.
               </div>
-            </div>
+            ) : (
+              upcomingRenewals.map((sub, index) => {
+                const targetDate = new Date(sub.nextBillingDate);
+                const diffTime = targetDate.getTime() - today.getTime();
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                const formattedDate = targetDate.toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric'
+                });
 
-            {/* Upcoming Item 2 */}
-            <div className="bg-[var(--surface-container-lowest)] p-5 rounded-xl flex items-center justify-between group hover:shadow-md transition-shadow cursor-pointer">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-[#cfe6f2] flex items-center justify-center text-[var(--primary)] shadow-sm group-hover:scale-105 transition-transform">
-                  <Briefcase className="w-6 h-6" />
-                </div>
-                <div>
-                  <h4 className="font-sans font-semibold text-sm text-[var(--on-surface)]">Peloton All-Access</h4>
-                  <p className="text-xs text-[var(--on-surface-variant)]">Billed on Oct 15</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="font-display font-bold text-sm text-[var(--on-surface)]">$44.00</p>
-                <span className="inline-block px-2 py-0.5 bg-[var(--secondary-container)] text-[var(--on-secondary-container)] text-[10px] font-bold rounded-full mt-1">Due in 5 days</span>
-              </div>
-            </div>
+                let statusText = "";
+                let statusColor = "";
+                if (diffDays === 0) {
+                  statusText = "Due today";
+                  statusColor = "bg-[var(--error-container)] text-[var(--on-error-container)]";
+                } else if (diffDays <= 3) {
+                  statusText = `Due in ${diffDays} day${diffDays > 1 ? 's' : ''}`;
+                  statusColor = "bg-[var(--error-container)] text-[var(--on-error-container)]";
+                } else {
+                  statusText = `Due in ${diffDays} days`;
+                  statusColor = "bg-[var(--secondary-container)] text-[var(--on-secondary-container)]";
+                }
 
-            {/* Upcoming Item 3 */}
-            <div className="bg-[var(--surface-container-lowest)] p-5 rounded-xl flex items-center justify-between group hover:shadow-md transition-shadow cursor-pointer">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-[#004f5a] flex items-center justify-center text-[#9eefff] shadow-sm group-hover:scale-105 transition-transform">
-                  <Cloud className="w-6 h-6" />
-                </div>
-                <div>
-                  <h4 className="font-sans font-semibold text-sm text-[var(--on-surface)]">Adobe Creative Cloud</h4>
-                  <p className="text-xs text-[var(--on-surface-variant)]">Billed on Oct 18</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="font-display font-bold text-sm text-[var(--on-surface)]">$54.99</p>
-                <span className="inline-block px-2 py-0.5 bg-[var(--secondary-container)] text-[var(--on-secondary-container)] text-[10px] font-bold rounded-full mt-1">Auto-renew</span>
-              </div>
-            </div>
+                const icons = [PlayCircle, Briefcase, Cloud, CreditCard];
+                const Icon = icons[index % icons.length];
+                const colors = ["bg-[#1e333c] text-white", "bg-[#cfe6f2] text-[var(--primary)]", "bg-[#004f5a] text-[#9eefff]"];
+                const colorClass = colors[index % colors.length];
+
+                return (
+                  <div key={sub.id} className="bg-[var(--surface-container-lowest)] p-5 rounded-xl flex items-center justify-between group hover:shadow-md transition-shadow cursor-pointer">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 rounded-full ${colorClass} flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform`}>
+                        <Icon className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h4 className="font-sans font-semibold text-sm text-[var(--on-surface)]">{sub.name}</h4>
+                        <p className="text-xs text-[var(--on-surface-variant)]">Billed on {formattedDate}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-display font-bold text-sm text-[var(--on-surface)]">${sub.price.toFixed(2)}</p>
+                      <span className={`inline-block px-2 py-0.5 text-[10px] font-bold rounded-full mt-1 ${statusColor}`}>
+                        {statusText}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
 
