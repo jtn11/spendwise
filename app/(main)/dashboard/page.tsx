@@ -39,6 +39,58 @@ export default function DashboardPage() {
 
   const activeCount = subscriptions.filter(sub => sub.autoRenew).length;
 
+  const yearlySavings = subscriptions
+    .filter(sub => !sub.autoRenew)
+    .reduce((acc, sub) => {
+      if (sub.billingCycle === "Monthly") return acc + sub.price * 12;
+      if (sub.billingCycle === "Weekly") return acc + sub.price * 52;
+      if (sub.billingCycle === "Yearly") return acc + sub.price;
+      return acc;
+    }, 0);
+
+  const categorySpend = subscriptions.reduce((acc, sub) => {
+    if (!sub.autoRenew) return acc;
+
+    let monthlyCost = 0;
+    if (sub.billingCycle === "Monthly") monthlyCost = sub.price;
+    if (sub.billingCycle === "Weekly") monthlyCost = sub.price * 4;
+    if (sub.billingCycle === "Yearly") monthlyCost = sub.price / 12;
+    
+    acc[sub.category] = (acc[sub.category] || 0) + monthlyCost;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const activeTotalSpend = Object.values(categorySpend).reduce((a, b) => a + b, 0);
+
+  const sortedCategories = Object.entries(categorySpend)
+    .sort((a, b) => b[1] - a[1])
+    .map(([name, amount]) => ({
+      name,
+      amount,
+      percentage: activeTotalSpend > 0 ? (amount / activeTotalSpend) * 100 : 0
+    }));
+
+  const chartColors = [
+    { text: "text-[var(--primary)]", bg: "bg-[var(--primary)]" },
+    { text: "text-[var(--secondary)]", bg: "bg-[var(--secondary)]" },
+    { text: "text-[#006976]", bg: "bg-[#006976]" },
+    { text: "text-[#1e333c]", bg: "bg-[#1e333c]" },
+    { text: "text-[#cfe6f2]", bg: "bg-[#cfe6f2]" },
+  ];
+
+  let currentCumulative = 100;
+  const categoriesWithCumulative = sortedCategories.map((cat, index) => {
+    const cumulativeToDraw = currentCumulative;
+    currentCumulative -= cat.percentage;
+    return {
+      ...cat,
+      cumulative: cumulativeToDraw,
+      colors: chartColors[index % chartColors.length]
+    };
+  });
+
+  const topCategory = sortedCategories.length > 0 ? sortedCategories[0] : null;
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -81,7 +133,7 @@ export default function DashboardPage() {
             </div>
             <div className="flex-shrink-0 bg-[var(--surface-container-low)] px-6 py-4 rounded-xl min-w-[140px]">
               <p className="text-xs text-[var(--on-surface-variant)] font-medium">Yearly Savings</p>
-              <p className="text-xl font-bold text-[var(--secondary)] mt-1">$1,240</p>
+              <p className="text-xl font-bold text-[var(--secondary)] mt-1">${yearlySavings.toFixed(2)}</p>
             </div>
           </div>
         </div>
@@ -94,29 +146,47 @@ export default function DashboardPage() {
             {/* Custom SVG Doughnut */}
             <svg className="w-full h-full transform -rotate-90">
               <circle className="text-[var(--surface-container-highest)]" cx="96" cy="96" fill="transparent" r="80" stroke="currentColor" strokeWidth="20"></circle>
-              <circle className="text-[var(--primary)]" cx="96" cy="96" fill="transparent" r="80" stroke="currentColor" strokeDasharray="502" strokeDashoffset="150" strokeWidth="20"></circle>
-              <circle className="text-[var(--secondary)]" cx="96" cy="96" fill="transparent" r="80" stroke="currentColor" strokeDasharray="502" strokeDashoffset="380" strokeWidth="20"></circle>
-              <circle className="text-[#006976]" cx="96" cy="96" fill="transparent" r="80" stroke="currentColor" strokeDasharray="502" strokeDashoffset="450" strokeWidth="20"></circle>
+              {categoriesWithCumulative.map((cat, i) => {
+                const dashoffset = 502 - (cat.cumulative / 100) * 502;
+                return (
+                  <circle 
+                    key={cat.name}
+                    className={cat.colors.text} 
+                    cx="96" 
+                    cy="96" 
+                    fill="transparent" 
+                    r="80" 
+                    stroke="currentColor" 
+                    strokeDasharray="502" 
+                    strokeDashoffset={dashoffset} 
+                    strokeWidth="20"
+                    style={{ transition: "stroke-dashoffset 1s ease-in-out" }}
+                  ></circle>
+                );
+              })}
             </svg>
             <div className="absolute flex flex-col items-center">
-              <span className="text-2xl font-black font-display text-[var(--on-surface)]">60%</span>
-              <span className="text-[10px] uppercase font-bold text-[var(--on-surface-variant)]">Entertainment</span>
+              {topCategory ? (
+                <>
+                  <span className="text-2xl font-black font-display text-[var(--on-surface)]">{Math.round(topCategory.percentage)}%</span>
+                  <span className="text-[10px] uppercase font-bold text-[var(--on-surface-variant)] truncate max-w-[80px]">{topCategory.name}</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-2xl font-black font-display text-[var(--on-surface)]">0%</span>
+                  <span className="text-[10px] uppercase font-bold text-[var(--on-surface-variant)]">N/A</span>
+                </>
+              )}
             </div>
           </div>
           
           <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <div className="flex items-center gap-1.5 text-[var(--on-surface)]">
-              <div className="w-2.5 h-2.5 rounded-full bg-[var(--primary)]"></div>
-              <span className="text-xs font-medium">Streaming</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-[var(--on-surface)]">
-              <div className="w-2.5 h-2.5 rounded-full bg-[var(--secondary)]"></div>
-              <span className="text-xs font-medium">Health</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-[var(--on-surface)]">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#006976]"></div>
-              <span className="text-xs font-medium">Work</span>
-            </div>
+            {sortedCategories.slice(0, 3).map((cat, i) => (
+              <div key={cat.name} className="flex items-center gap-1.5 text-[var(--on-surface)]">
+                <div className={`w-2.5 h-2.5 rounded-full ${categoriesWithCumulative[i].colors.bg}`}></div>
+                <span className="text-xs font-medium">{cat.name}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -255,3 +325,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+
