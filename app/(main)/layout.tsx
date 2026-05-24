@@ -154,14 +154,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </Link>
       </nav>
 
-      {/* FAB for Desktop (Contextual) */}
-      <button
-        onClick={() => { setEditingSubscription(null); setIsModalOpen(true); }}
-        className="hidden md:flex fixed bottom-8 right-8 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-container)] text-[var(--on-primary)] p-4 rounded-full shadow-2xl shadow-[var(--primary)]/30 items-center gap-3 hover:scale-105 transition-transform group z-50">
-        <Plus className="w-5 h-5" />
-        <span className="font-bold text-sm pr-2">Add New Subscription</span>
-      </button>
-
       <AddSubscriptionModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
