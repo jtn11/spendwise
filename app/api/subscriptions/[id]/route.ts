@@ -14,7 +14,7 @@ export async function PUT(
       return NextResponse.json({ error: "Subscription ID is required" }, { status: 400 });
     }
 
-    const { name, price, billingCycle, category, nextBillingDate, autoRenew } = body;
+    const { name, price, billingCycle, category, nextBillingDate, autoRenew, reviewedAt, reviewAction, remindLaterUntil } = body;
     const parsedPrice = typeof price === "string" ? parseFloat(price) : price;
 
     if (isNaN(parsedPrice)) {
@@ -23,7 +23,7 @@ export async function PUT(
 
     const subscriptionRef = doc(db, "subscriptions", id);
     
-    const updateData = {
+    const updateData: any = {
       name,
       price: parsedPrice,
       billingCycle,
@@ -31,6 +31,10 @@ export async function PUT(
       nextBillingDate,
       autoRenew: !!autoRenew,
     };
+
+    if (reviewedAt !== undefined) updateData.reviewedAt = reviewedAt;
+    if (reviewAction !== undefined) updateData.reviewAction = reviewAction;
+    if (remindLaterUntil !== undefined) updateData.remindLaterUntil = remindLaterUntil;
 
     await updateDoc(subscriptionRef, updateData);
     

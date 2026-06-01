@@ -10,4 +10,10 @@ export interface Subscription {
   nextBillingDate: string; // ISO date string
   autoRenew: boolean;
   createdAt?: string;
+  
+  // Savings Engine extensions
+  reviewedAt?: string; // ISO date string when last reviewed
+  reviewAction?: "keep" | "cancel" | "remind_later" | null;
+  remindLaterUntil?: string; // ISO date string
 }
+

@@ -4,29 +4,30 @@ import { TrendingDown, PlayCircle, Cloud, Briefcase, PiggyBank, CreditCard } fro
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import type { Subscription } from "@/lib/types";
+import SavingsWidget from "@/components/SavingsWidget";
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchSubscriptions = async () => {
-      if (!user) return;
-      
-      setLoading(true);
-      try {
-        const response = await fetch(`/api/subscriptions?userId=${user.uid}`);
-        if (!response.ok) throw new Error("Failed to fetch");
-        const data = await response.json();
-        setSubscriptions(data);
-      } catch (error) {
-        console.error("Error loading subscriptions:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchSubscriptions = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/subscriptions?userId=${user.uid}`);
+      if (!response.ok) throw new Error("Failed to fetch");
+      const data = await response.json();
+      setSubscriptions(data);
+    } catch (error) {
+      console.error("Error loading subscriptions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchSubscriptions();
   }, [user]);
 
@@ -306,17 +307,11 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="mt-16 bg-[var(--surface-container-low)] p-6 rounded-3xl flex flex-col md:flex-row items-center gap-6">
-              <div className="w-16 h-16 rounded-full bg-[var(--secondary-container)] flex items-center justify-center text-[var(--on-secondary-container)] shadow-sm">
-                <PiggyBank className="w-8 h-8" />
-              </div>
-              <div className="text-center md:text-left">
-                <h5 className="font-display font-bold text-base text-[var(--on-surface)]">Potential Savings Detected</h5>
-                <p className="text-sm text-[var(--on-surface-variant)] mt-1">We found two duplicate streaming services. Consolidating could save you $120.00 annually.</p>
-              </div>
-              <button className="md:ml-auto whitespace-nowrap bg-[var(--on-surface)] text-[var(--surface)] py-2.5 px-6 rounded-full text-sm font-bold hover:scale-95 transition-transform shadow-md">
-                Review Insights
-              </button>
+            <div className="mt-16">
+              <SavingsWidget 
+                subscriptions={subscriptions} 
+                onActionCompleted={fetchSubscriptions} 
+              />
             </div>
 
           </div>
